@@ -1,0 +1,53 @@
+name: hncheck-runner CI
+
+on:
+  pull_request:
+  push:
+  schedule:
+    # once a day at 08:00
+    - cron: "0 8 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+
+      # Used to force dependencies to re-cache once a day so that we don't run
+      # into any weird cache invalidation problems, so to make sure that
+      # dependency fetches keep working.
+      - name: Get date
+        id: get-date
+        run: |
+          echo "::set-output name=date::$(/bin/date -u "+%Y-%m-%d")"
+        shell: bash
+
+      - name: Cache dependencies
+        id: cache-dependencies
+        uses: actions/cache@v2
+        with:
+          # Don't try to use variables in these paths. They don't seem to work
+          # and it'll lead to hours of confusion. You can use a `~`, but I've
+          # expanded HOME so that finding things is easier.
+          path: |
+            /home/runner/go/bin/
+            /home/runner/go/pkg/mod/
+          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-cache-dependencies-v2
+
+      - name: Install hncheck
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: go get -u github.com/brandur/hncheck
+
+      - name: Run hncheck
+        run: "$(go env GOPATH)/bin/hncheck"
+        env:
+          DOMAIN: brandur.org
+          LOOP: false
+          RECIPIENT: brandur@brandur.org
+          SMTP_LOGIN: ${{ secrets.SMTP_LOGIN }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_PORT: 587
+          SMTP_SERVER: smtp.mailgun.org
