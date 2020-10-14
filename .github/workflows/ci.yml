@@ -4,8 +4,8 @@ on:
   pull_request:
   push:
   schedule:
-    # once a day at 08:00
-    - cron: "0 8 * * *"
+    # every ten minutes
+    - cron: "*/10 * * * *"
 
 jobs:
   build:
