@@ -22,7 +22,7 @@ jobs:
       - name: Run hncheck
         run: "$(go env GOPATH)/bin/hncheck"
         env:
-          DOMAIN: brandur.org
+          DOMAIN: brandur.org,riverqueue.com
           LOOP: false
           RECIPIENT: brandur@brandur.org
           SMTP_LOGIN: ${{ secrets.SMTP_LOGIN }}
