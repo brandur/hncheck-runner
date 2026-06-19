@@ -3,9 +3,9 @@ name: hncheck-runner CI
 on:
   pull_request:
   push:
-  schedule:
-    # every 15 minutes
-    - cron: "*/15 * * * *"
+  # schedule:
+  #   # every 15 minutes
+  #   - cron: "*/15 * * * *"
 
 jobs:
   build:
